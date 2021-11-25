@@ -1,4 +1,6 @@
 <script lang="jsx">
+import { orderBy } from "lodash";
+
 import styles from "./style.module.css";
 
 export default {
@@ -20,7 +22,30 @@ export default {
       text: "",
     },
   }),
+  computed: {
+    sortedRows() {
+      let result;
+
+      if (!this.sort.columnName) {
+        result = this.rows;
+      }
+
+      result = orderBy(
+        this.rows,
+        [this.sort.columnName],
+        [this.sort.direction]
+      );
+
+      return result;
+    },
+  },
   methods: {
+    toggleSort(columnName) {
+      this.sort.columnName = columnName;
+      this.sort.direction =
+        this.sort.direction === "desc" || !this.sort.direction ? "asc" : "desc";
+    },
+
     getColumnOptions() {
       return this.$slots.default.map((column) => {
         return Object.assign({}, column.componentOptions.propsData);
@@ -28,19 +53,40 @@ export default {
     },
 
     renderHead(h, columnsOptions) {
-      const { headerCell } = this.styles;
+      const { styles, sort } = this;
+      const { headerCell, headerCellContent, sortIcon } = styles;
 
       return columnsOptions.map((column) => {
+        const sortIconClasses = [sortIcon];
+
+        if (sort.columnName === column.name) {
+          sortIconClasses.push("fad");
+          sortIconClasses.push(
+            sort.direction === "asc"
+              ? "fa-sort-amount-down"
+              : "fa-sort-amount-up"
+          );
+        } else {
+          sortIconClasses.push("fas");
+          sortIconClasses.push("fa-sort");
+        }
+
         return (
           <th key={`${column.name}_${column.title}`} class={headerCell}>
-            {column.title}
+            <div class={headerCellContent}>
+              <span>{column.title}</span>
+              <li
+                class={sortIconClasses.join(" ")}
+                onClick={() => this.toggleSort(column.name)}
+              />
+            </div>
           </th>
         );
       });
     },
 
     renderRows(h, columnsOptions) {
-      return this.rows.map((row) => {
+      return this.sortedRows.map((row) => {
         return (
           <tr key={row.id}>{...this.renderColumns(h, row, columnsOptions)}</tr>
         );
