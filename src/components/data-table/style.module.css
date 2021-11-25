@@ -17,6 +17,8 @@
 .headerCellContent {
     display: flex;
     align-items: center;
+
+    position: relative;
 }
 
 .sortIcon {
@@ -25,6 +27,31 @@
     margin-right: 24px;
 }
 
-.sortIcon:hover {
+.filterIcon {
+    margin-right: 24px;
+}
+
+.sortIcon:hover,
+.filterIcon:hover{
     cursor: pointer;
+}
+
+.filterInput {
+    display: none;
+
+    position: absolute;
+
+    left: 0;
+    bottom: -1.5rem;
+
+    width: 100%;
+    max-width: 250px;
+
+    padding: 0;
+    border: 2px solid #c8cacc;
+    outline: none;
+}
+
+.filterInputShown {
+    display: block;
 }

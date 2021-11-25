@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import DataTable from "@/components/table/data-table";
-import TableColumn from "@/components/table/TableColumn";
+import DataTable from "@/components/data-table";
+import TableColumn from "@/components/TableColumn";
 
 export default {
   name: "App",

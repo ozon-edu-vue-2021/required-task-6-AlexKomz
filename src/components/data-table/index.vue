@@ -3,6 +3,22 @@ import { orderBy } from "lodash";
 
 import styles from "./style.module.css";
 
+const direction = {
+  ASC: "asc",
+  DESC: "desc",
+};
+
+const icon = {
+  sort: {
+    DEFAULT: "fas fa-sort",
+    ASC: "fad fa-sort-amount-down",
+    DESC: "fad fa-sort-amount-up",
+  },
+  filter: {
+    DEFAULT: "fas fa-filter",
+  },
+};
+
 export default {
   name: "DataTable",
   props: {
@@ -36,14 +52,31 @@ export default {
         [this.sort.direction]
       );
 
+      if (this.filter.text) {
+        result = result.filter((row) =>
+          row[this.filter.columnName].includes(this.filter.text)
+        );
+      }
+
       return result;
     },
   },
   methods: {
+    inputHandler(event) {
+      this.filter.text = event.target.value;
+    },
+
+    openFilterInput(columnName) {
+      this.filter.columnName = columnName;
+      this.filter.text = "";
+    },
+
     toggleSort(columnName) {
       this.sort.columnName = columnName;
       this.sort.direction =
-        this.sort.direction === "desc" || !this.sort.direction ? "asc" : "desc";
+        this.sort.direction === direction.DESC || !this.sort.direction
+          ? direction.ASC
+          : direction.DESC;
     },
 
     getColumnOptions() {
@@ -52,32 +85,59 @@ export default {
       });
     },
 
+    getSortIconClasses(columnName) {
+      const { sortIcon } = this.styles;
+      const result = [sortIcon];
+
+      if (this.sort.columnName === columnName) {
+        result.push(
+          this.sort.direction === direction.ASC ? icon.sort.ASC : icon.sort.DESC
+        );
+      } else {
+        result.push(icon.sort.DEFAULT);
+      }
+
+      return result;
+    },
+
     renderHead(h, columnsOptions) {
-      const { styles, sort } = this;
-      const { headerCell, headerCellContent, sortIcon } = styles;
+      const { styles, filter } = this;
+      const {
+        headerCell,
+        headerCellContent,
+        filterIcon,
+        filterInput,
+        filterInputShown,
+      } = styles;
 
       return columnsOptions.map((column) => {
-        const sortIconClasses = [sortIcon];
+        const sortIconClasses = this.getSortIconClasses(column.name);
+        const filterIconClasses = [filterIcon];
+        const filterInputClasses = [filterInput];
 
-        if (sort.columnName === column.name) {
-          sortIconClasses.push("fad");
-          sortIconClasses.push(
-            sort.direction === "asc"
-              ? "fa-sort-amount-down"
-              : "fa-sort-amount-up"
-          );
-        } else {
-          sortIconClasses.push("fas");
-          sortIconClasses.push("fa-sort");
+        filterIconClasses.push(icon.filter.DEFAULT);
+
+        if (filter.columnName === column.name) {
+          filterInputClasses.push(filterInputShown);
         }
 
         return (
           <th key={`${column.name}_${column.title}`} class={headerCell}>
             <div class={headerCellContent}>
+              <i
+                class={filterIconClasses.join(" ")}
+                onClick={() => this.openFilterInput(column.name)}
+              />
               <span>{column.title}</span>
-              <li
+              <i
                 class={sortIconClasses.join(" ")}
                 onClick={() => this.toggleSort(column.name)}
+              />
+              <input
+                class={filterInputClasses.join(" ")}
+                type="text"
+                value={filter.text}
+                onInput={this.inputHandler}
               />
             </div>
           </th>
