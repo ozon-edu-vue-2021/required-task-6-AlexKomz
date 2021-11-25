@@ -10,11 +10,12 @@
 </template>
 
 <script>
-import DataTable from "@/components/table/DataTable";
+import DataTable from "@/components/table/data-table";
 import TableColumn from "@/components/table/TableColumn";
+
 export default {
   name: "App",
-  components: { TableColumn, DataTable },
+  components: { DataTable, TableColumn },
   data() {
     return {
       rows: [],
