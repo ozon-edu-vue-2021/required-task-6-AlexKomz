@@ -45,8 +45,7 @@ export default {
   data: () => ({
     styles,
     sort: {
-      columnName: "",
-      direction: "",
+      columns: [],
     },
     filter: {
       columnName: "",
@@ -57,15 +56,16 @@ export default {
     sortedRows() {
       let result;
 
-      if (!this.sort.columnName) {
+      const filtered = this.sort.columns.filter((column) => !!column.direction);
+
+      if (!filtered.length) {
         result = this.rows;
       }
 
-      result = orderBy(
-        this.rows,
-        [this.sort.columnName],
-        [this.sort.direction]
-      );
+      const iteratees = filtered.map((column) => column.name);
+      const orders = filtered.map((column) => column.direction);
+
+      result = orderBy(this.rows, iteratees, orders);
 
       if (this.filter.text) {
         result = result.filter((row) =>
@@ -87,9 +87,12 @@ export default {
     },
 
     toggleSort(columnName) {
-      this.sort.columnName = columnName;
-      this.sort.direction =
-        this.sort.direction === direction.DESC || !this.sort.direction
+      const column = this.sort.columns.find(
+        (column) => column.name === columnName
+      );
+
+      column.direction =
+        column.direction === direction.DESC || !column.direction
           ? direction.ASC
           : direction.DESC;
     },
@@ -100,16 +103,29 @@ export default {
       });
     },
 
+    getSortOptions(columnsOptions) {
+      return columnsOptions.map((column) => {
+        return { name: column.name, direction: "" };
+      });
+    },
+
     getSortIconClasses(columnName) {
       const { sortIcon } = this.styles;
       const result = [sortIcon];
 
-      if (this.sort.columnName === columnName) {
-        result.push(
-          this.sort.direction === direction.ASC ? icon.sort.ASC : icon.sort.DESC
-        );
-      } else {
-        result.push(icon.sort.DEFAULT);
+      const column = this.sort.columns.find(
+        (column) => column.name === columnName
+      );
+
+      switch (column.direction) {
+        case direction.ASC:
+          result.push(icon.sort.ASC);
+          break;
+        case direction.DESC:
+          result.push(icon.sort.DESC);
+          break;
+        default:
+          result.push(icon.sort.DEFAULT);
       }
 
       return result;
@@ -200,12 +216,18 @@ export default {
     },
   },
 
+  created() {
+    const columnOptions = this.getColumnOptions();
+    this.sort.columns = this.getSortOptions(columnOptions);
+  },
+
   render(h) {
     const { totalPages, currentPage, staticPaging, $listeners } = this;
     const { getPage } = $listeners;
     const { wrapper, table } = this.styles;
 
     const columnsOptions = this.getColumnOptions();
+
     const columnsHead = this.renderHead(h, columnsOptions);
     const rows = this.renderRows(h, columnsOptions);
 
@@ -218,15 +240,16 @@ export default {
           <tbody>{...rows}</tbody>
         </table>
 
-        {hasPagination && staticPaging ? (
-          <TablePaginator
-            totalPages={totalPages}
-            currentPage={currentPage}
-            on={{ getPage: getPage }}
-          />
-        ) : (
-          this.renderInfPager()
-        )}
+        {hasPagination &&
+          (staticPaging ? (
+            <TablePaginator
+              totalPages={totalPages}
+              currentPage={currentPage}
+              on={{ getPage: getPage }}
+            />
+          ) : (
+            this.renderInfPager()
+          ))}
       </div>
     );
   },

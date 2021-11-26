@@ -1,12 +1,6 @@
 <template>
   <div id="app">
-    <DataTable
-      :rows="rows"
-      :current-page="currentPage"
-      :total-pages="totalPages"
-      :static-paging="false"
-      @getPage="infGetPage"
-    >
+    <DataTable :rows="rows">
       <TableColumn name="id" title="ID" />
       <TableColumn name="postId" title="Post ID" />
       <TableColumn name="email" title="Email" />
@@ -30,13 +24,13 @@ export default {
   async created() {
     const res = await fetch(`https://jsonplaceholder.typicode.com/comments`);
 
-    // this.rows = await res.json();
+    this.rows = await res.json();
 
-    this.totalPages = Math.max(
-      ...(await res.json()).map((item) => item.postId)
-    );
-
-    this.blockingPromise = this.getPage(1);
+    // this.totalPages = Math.max(
+    //   ...(await res.json()).map((item) => item.postId)
+    // );
+    //
+    // this.blockingPromise = this.getPage(1);
   },
   methods: {
     async getPage(number) {
