@@ -3,6 +3,7 @@ import { orderBy } from "lodash";
 
 import styles from "./DataTable.module.css";
 import TablePaginator from "@/components/table-paginator/TablePaginator";
+import TableLoader from "@/components/table-loader/TableLoader";
 
 const direction = {
   ASC: "asc",
@@ -22,7 +23,7 @@ const icon = {
 
 export default {
   name: "DataTable",
-  components: { TablePaginator },
+  components: { TablePaginator, TableLoader },
   props: {
     rows: {
       type: Array,
@@ -191,7 +192,11 @@ export default {
         },
       ];
 
-      return <div {...{ class: infPager, directives }} />;
+      return (
+        <div {...{ class: infPager, directives }}>
+          <TableLoader />
+        </div>
+      );
     },
   },
 
