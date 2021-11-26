@@ -2,6 +2,7 @@
 import { orderBy } from "lodash";
 
 import styles from "./style.module.css";
+import TablePaginator from "@/components/table-paginator";
 
 const direction = {
   ASC: "asc",
@@ -21,10 +22,19 @@ const icon = {
 
 export default {
   name: "DataTable",
+  components: { TablePaginator },
   props: {
     rows: {
       type: Array,
       default: () => [],
+    },
+    currentPage: {
+      type: Number,
+      default: 0,
+    },
+    totalPages: {
+      type: Number,
+      default: 0,
     },
   },
   data: () => ({
@@ -54,7 +64,7 @@ export default {
 
       if (this.filter.text) {
         result = result.filter((row) =>
-          row[this.filter.columnName].includes(this.filter.text)
+          row[this.filter.columnName].toString().includes(this.filter.text)
         );
       }
 
@@ -167,17 +177,31 @@ export default {
   },
 
   render(h) {
+    const { totalPages, currentPage, $listeners } = this;
+    const { getPage } = $listeners;
     const { table } = this.styles;
 
     const columnsOptions = this.getColumnOptions();
     const columnsHead = this.renderHead(h, columnsOptions);
     const rows = this.renderRows(h, columnsOptions);
 
+    const hasPagination = !!(totalPages && currentPage && getPage);
+
     return (
-      <table class={table}>
-        <thead>{...columnsHead}</thead>
-        <tbody>{...rows}</tbody>
-      </table>
+      <div>
+        <table class={table}>
+          <thead>{...columnsHead}</thead>
+          <tbody>{...rows}</tbody>
+        </table>
+
+        {hasPagination && (
+          <TablePaginator
+            totalPages={totalPages}
+            currentPage={currentPage}
+            on={{ getPage: getPage }}
+          />
+        )}
+      </div>
     );
   },
 };

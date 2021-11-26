@@ -1,6 +1,11 @@
 <template>
   <div id="app">
-    <DataTable :rows="rows">
+    <DataTable
+      :rows="rows"
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      @getPage="getPage"
+    >
       <TableColumn name="id" title="ID" />
       <TableColumn name="postId" title="Post ID" />
       <TableColumn name="email" title="Email" />
@@ -16,14 +21,28 @@ import TableColumn from "@/components/TableColumn";
 export default {
   name: "App",
   components: { DataTable, TableColumn },
-  data() {
-    return {
-      rows: [],
-    };
-  },
+  data: () => ({
+    rows: [],
+    currentPage: 1,
+    totalPages: 1,
+  }),
   async created() {
     const res = await fetch(`https://jsonplaceholder.typicode.com/comments`);
-    this.rows = await res.json();
+    // this.rows = await res.json();
+    this.totalPages = Math.max(
+      ...(await res.json()).map((item) => item.postId)
+    );
+
+    await this.getPage(this.currentPage);
+  },
+  methods: {
+    async getPage(number) {
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/comments?postId=${number}`
+      );
+      this.rows = await res.json();
+      this.currentPage = number;
+    },
   },
 };
 </script>
