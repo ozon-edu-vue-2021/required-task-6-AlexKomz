@@ -1,5 +1,5 @@
 <script lang="jsx">
-import styles from "./style.module.css";
+import styles from "./TablePaginator.module.css";
 
 export default {
   name: "TablePaginator",

@@ -4,7 +4,8 @@
       :rows="rows"
       :current-page="currentPage"
       :total-pages="totalPages"
-      @getPage="getPage"
+      :static-paging="false"
+      @getPage="infGetPage"
     >
       <TableColumn name="id" title="ID" />
       <TableColumn name="postId" title="Post ID" />
@@ -15,7 +16,7 @@
 </template>
 
 <script>
-import DataTable from "@/components/data-table";
+import DataTable from "@/components/data-table/DataTable";
 import TableColumn from "@/components/TableColumn";
 
 export default {
@@ -28,12 +29,14 @@ export default {
   }),
   async created() {
     const res = await fetch(`https://jsonplaceholder.typicode.com/comments`);
+
     // this.rows = await res.json();
+
     this.totalPages = Math.max(
       ...(await res.json()).map((item) => item.postId)
     );
 
-    await this.getPage(this.currentPage);
+    this.blockingPromise = this.getPage(1);
   },
   methods: {
     async getPage(number) {
@@ -42,6 +45,18 @@ export default {
       );
       this.rows = await res.json();
       this.currentPage = number;
+    },
+
+    async infGetPage() {
+      this.blockingPromise && (await this.blockingPromise);
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/comments?postId=${
+          this.currentPage + 1
+        }`
+      );
+      const newRows = await res.json();
+      this.rows = [...this.rows, ...newRows];
+      this.currentPage++;
     },
   },
 };

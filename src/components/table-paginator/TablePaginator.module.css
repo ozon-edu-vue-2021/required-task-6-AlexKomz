@@ -1,6 +1,6 @@
 .pagination {
     height: 48px;
-    width: 100%;
+    width: calc(100% - 8px);
     border-bottom: 1px solid #c8cacc;
     display: flex;
     align-items: center;

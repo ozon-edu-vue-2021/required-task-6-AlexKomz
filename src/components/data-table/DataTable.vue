@@ -1,8 +1,8 @@
 <script lang="jsx">
 import { orderBy } from "lodash";
 
-import styles from "./style.module.css";
-import TablePaginator from "@/components/table-paginator";
+import styles from "./DataTable.module.css";
+import TablePaginator from "@/components/table-paginator/TablePaginator";
 
 const direction = {
   ASC: "asc",
@@ -35,6 +35,10 @@ export default {
     totalPages: {
       type: Number,
       default: 0,
+    },
+    staticPaging: {
+      type: Boolean,
+      default: true,
     },
   },
   data: () => ({
@@ -174,12 +178,27 @@ export default {
         );
       });
     },
+
+    renderInfPager() {
+      const { infPager } = this.styles;
+
+      const directives = [
+        {
+          name: "detect-viewport",
+          value: {
+            callback: this.$listeners.getPage,
+          },
+        },
+      ];
+
+      return <div {...{ class: infPager, directives }} />;
+    },
   },
 
   render(h) {
-    const { totalPages, currentPage, $listeners } = this;
+    const { totalPages, currentPage, staticPaging, $listeners } = this;
     const { getPage } = $listeners;
-    const { table } = this.styles;
+    const { wrapper, table } = this.styles;
 
     const columnsOptions = this.getColumnOptions();
     const columnsHead = this.renderHead(h, columnsOptions);
@@ -188,18 +207,20 @@ export default {
     const hasPagination = !!(totalPages && currentPage && getPage);
 
     return (
-      <div>
+      <div class={wrapper}>
         <table class={table}>
           <thead>{...columnsHead}</thead>
           <tbody>{...rows}</tbody>
         </table>
 
-        {hasPagination && (
+        {hasPagination && staticPaging ? (
           <TablePaginator
             totalPages={totalPages}
             currentPage={currentPage}
             on={{ getPage: getPage }}
           />
+        ) : (
+          this.renderInfPager()
         )}
       </div>
     );
