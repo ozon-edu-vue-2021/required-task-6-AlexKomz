@@ -2,6 +2,7 @@
 import { orderBy } from "lodash";
 
 import styles from "./DataTable.module.css";
+import TableView from "@/components/table-view/TableView";
 import TablePaginator from "@/components/table-paginator/TablePaginator";
 import TableLoader from "@/components/table-loader/TableLoader";
 
@@ -23,7 +24,7 @@ const icon = {
 
 export default {
   name: "DataTable",
-  components: { TablePaginator, TableLoader },
+  components: { TableView, TablePaginator, TableLoader },
   props: {
     rows: {
       type: Array,
@@ -231,7 +232,7 @@ export default {
   render() {
     const { currentPage, totalPages, staticPaging, $listeners } = this;
     const { getPage } = $listeners;
-    const { wrapper, table } = styles;
+    const { wrapper } = styles;
 
     const columnsHead = this.renderHead();
     const rows = this.renderRows();
@@ -240,10 +241,7 @@ export default {
 
     return (
       <div class={wrapper}>
-        <table class={table}>
-          <thead>{...columnsHead}</thead>
-          <tbody>{...rows}</tbody>
-        </table>
+        <TableView tableHead={columnsHead} tableBody={rows} />
 
         {hasPagination &&
           (staticPaging ? (

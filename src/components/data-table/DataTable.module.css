@@ -6,11 +6,6 @@
     min-height: 100vh;
 }
 
-.table {
-    border-spacing: 0;
-    width: 100%;
-}
-
 .cell {
     text-align: left;
     border-bottom: 1px solid #c8cacc;
