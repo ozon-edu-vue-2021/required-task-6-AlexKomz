@@ -13,9 +13,6 @@ export default {
       default: 0,
     },
   },
-  data: () => ({
-    styles,
-  }),
   computed: {
     shownPagesNumbers() {
       const { currentPage, totalPages } = this;
@@ -50,8 +47,7 @@ export default {
     },
   },
   render() {
-    const { styles, shownPagesNumbers, currentPage, totalPages, $listeners } =
-      this;
+    const { shownPagesNumbers, currentPage, totalPages, $listeners } = this;
     const { pagination, control, active } = styles;
     const { getPage } = $listeners;
 

@@ -229,14 +229,14 @@ export default {
   },
 
   render() {
-    const { totalPages, currentPage, staticPaging, $listeners } = this;
+    const { currentPage, totalPages, staticPaging, $listeners } = this;
     const { getPage } = $listeners;
     const { wrapper, table } = styles;
 
     const columnsHead = this.renderHead();
     const rows = this.renderRows();
 
-    const hasPagination = !!(totalPages && currentPage && getPage);
+    const hasPagination = !!(currentPage && totalPages && getPage);
 
     return (
       <div class={wrapper}>
@@ -248,8 +248,8 @@ export default {
         {hasPagination &&
           (staticPaging ? (
             <TablePaginator
-              totalPages={totalPages}
               currentPage={currentPage}
+              totalPages={totalPages}
               on={{ getPage: getPage }}
             />
           ) : (
