@@ -48,51 +48,67 @@ export default {
       columns: [],
     },
     filter: {
-      columnName: "",
-      text: "",
+      columns: [],
     },
   }),
   computed: {
     sortedRows() {
       let result;
 
-      const filteredByDirection = this.sort.columns.filter(
-        (column) => !!column.direction
+      const sortColumnsFilteredByDirection = this.getNotEmptyColumns(
+        this.sort.columns,
+        "direction"
       );
 
-      if (!filteredByDirection.length) {
+      if (!sortColumnsFilteredByDirection.length) {
         result = this.rows;
       }
 
-      const iteratees = filteredByDirection.map((column) => column.name);
-      const orders = filteredByDirection.map((column) => column.direction);
+      const iteratees = sortColumnsFilteredByDirection.map(
+        (column) => column.name
+      );
+      const orders = sortColumnsFilteredByDirection.map(
+        (column) => column.direction
+      );
 
       result = orderBy(this.rows, iteratees, orders);
 
-      if (this.filter.text) {
+      const filterColumnsFilteredByText = this.getNotEmptyColumns(
+        this.filter.columns,
+        "text"
+      );
+
+      filterColumnsFilteredByText.forEach((column) => {
         result = result.filter((row) =>
-          row[this.filter.columnName].toString().includes(this.filter.text)
+          row[column.name].toString().includes(column.text)
         );
-      }
+      });
 
       return result;
     },
   },
   methods: {
-    inputHandler(event) {
-      this.filter.text = event.target.value;
+    getNotEmptyColumns(columns, columnName) {
+      return columns.filter((column) => !!column[columnName]);
     },
 
-    openFilterInput(columnName) {
-      this.filter.columnName = columnName;
-      this.filter.text = "";
+    getColumn(columns, columnName) {
+      return columns.find((column) => column.name === columnName);
     },
 
-    toggleSort(columnName) {
-      const column = this.sort.columns.find(
-        (column) => column.name === columnName
-      );
+    inputHandler(column, value) {
+      column.text = value;
+    },
 
+    toggleFilterInput(column) {
+      if (column.isOpen) {
+        column.text = "";
+      }
+
+      column.isOpen = !column.isOpen;
+    },
+
+    toggleSort(column) {
       column.direction =
         column.direction === direction.DESC || !column.direction
           ? direction.ASC
@@ -111,13 +127,15 @@ export default {
       });
     },
 
-    getSortIconClasses(columnName) {
+    getFilterOptions(columnOptions) {
+      return columnOptions.map((column) => {
+        return { name: column.name, text: "", isOpen: false };
+      });
+    },
+
+    getSortIconClasses(column) {
       const { sortIcon } = this.styles;
       const result = [sortIcon];
-
-      const column = this.sort.columns.find(
-        (column) => column.name === columnName
-      );
 
       switch (column.direction) {
         case direction.ASC:
@@ -134,7 +152,7 @@ export default {
     },
 
     renderHead(h, columnsOptions) {
-      const { styles, filter } = this;
+      const { styles } = this;
       const {
         headerCell,
         headerCellContent,
@@ -144,13 +162,16 @@ export default {
       } = styles;
 
       return columnsOptions.map((column) => {
-        const sortIconClasses = this.getSortIconClasses(column.name);
+        const sortColumn = this.getColumn(this.sort.columns, column.name);
+        const filterColumn = this.getColumn(this.filter.columns, column.name);
+
+        const sortIconClasses = this.getSortIconClasses(sortColumn);
         const filterIconClasses = [filterIcon];
         const filterInputClasses = [filterInput];
 
         filterIconClasses.push(icon.filter.DEFAULT);
 
-        if (filter.columnName === column.name) {
+        if (filterColumn.isOpen) {
           filterInputClasses.push(filterInputShown);
         }
 
@@ -159,18 +180,21 @@ export default {
             <div class={headerCellContent}>
               <i
                 class={filterIconClasses.join(" ")}
-                onClick={() => this.openFilterInput(column.name)}
+                onClick={() => this.toggleFilterInput(filterColumn)}
               />
               <span>{column.title}</span>
               <i
                 class={sortIconClasses.join(" ")}
-                onClick={() => this.toggleSort(column.name)}
+                onClick={() => this.toggleSort(sortColumn)}
               />
               <input
                 class={filterInputClasses.join(" ")}
                 type="text"
-                value={filter.text}
-                onInput={this.inputHandler}
+                value={filterColumn.text}
+                onInput={(event) => {
+                  const { value } = event.target;
+                  this.inputHandler(filterColumn, value);
+                }}
               />
             </div>
           </th>
@@ -221,6 +245,7 @@ export default {
   created() {
     const columnOptions = this.getColumnOptions();
     this.sort.columns = this.getSortOptions(columnOptions);
+    this.filter.columns = this.getFilterOptions(columnOptions);
   },
 
   render(h) {
