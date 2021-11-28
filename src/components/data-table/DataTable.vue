@@ -56,14 +56,16 @@ export default {
     sortedRows() {
       let result;
 
-      const filtered = this.sort.columns.filter((column) => !!column.direction);
+      const filteredByDirection = this.sort.columns.filter(
+        (column) => !!column.direction
+      );
 
-      if (!filtered.length) {
+      if (!filteredByDirection.length) {
         result = this.rows;
       }
 
-      const iteratees = filtered.map((column) => column.name);
-      const orders = filtered.map((column) => column.direction);
+      const iteratees = filteredByDirection.map((column) => column.name);
+      const orders = filteredByDirection.map((column) => column.direction);
 
       result = orderBy(this.rows, iteratees, orders);
 
