@@ -1,6 +1,13 @@
 <template>
   <div id="app">
-    <DataTable :rows="rows">
+    <button @click="rendered = true">Render</button>
+    <DataTable
+      v-if="rendered"
+      :rows="rows"
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      @getPage="getPage"
+    >
       <TableColumn name="id" title="ID" />
       <TableColumn name="postId" title="Post ID" />
       <TableColumn name="email" title="Email" />
@@ -10,13 +17,14 @@
 </template>
 
 <script>
-import DataTable from "@/components/data-table/DataTable";
+import DataTable from "@/components/data-table/DataTableWithFunc";
 import TableColumn from "@/components/TableColumn";
 
 export default {
   name: "App",
   components: { DataTable, TableColumn },
   data: () => ({
+    rendered: false,
     rows: [],
     currentPage: 1,
     totalPages: 1,
@@ -24,13 +32,13 @@ export default {
   async created() {
     const res = await fetch(`https://jsonplaceholder.typicode.com/comments`);
 
-    this.rows = await res.json();
+    // this.rows = await res.json();
 
-    // this.totalPages = Math.max(
-    //   ...(await res.json()).map((item) => item.postId)
-    // );
-    //
-    // this.blockingPromise = this.getPage(1);
+    this.totalPages = Math.max(
+      ...(await res.json()).map((item) => item.postId)
+    );
+
+    this.blockingPromise = this.getPage(1);
   },
   methods: {
     async getPage(number) {

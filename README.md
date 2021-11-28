@@ -1,24 +1,11 @@
 # required-task-6
 
-## Project setup
-```
-npm install
-```
+## Cравнительный анализ быстродействия отрисовки данных на FC и на обычных компонентах
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+### Без пагинации
+<img src="./src/assets/stats/not_func_comp.png" alt="">
+<img src="./src/assets/stats/func.png" alt="">
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### С пагинацией
+<img src="" alt="">
+<img src="" alt="">
