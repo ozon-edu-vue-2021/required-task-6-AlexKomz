@@ -1,28 +1,36 @@
 <template>
   <div id="app">
     <button @click="rendered = true">Render</button>
-    <DataTable
+    <!--    <DataTable v-if="rendered" :rows="rows">-->
+    <!--      <TableColumn name="id" title="ID" />-->
+    <!--      <TableColumn name="postId" title="Post ID" />-->
+    <!--      <TableColumn name="email" title="Email" />-->
+    <!--      <TableColumn name="name" title="Name" />-->
+    <!--    </DataTable>-->
+    <RecycleScroller
       v-if="rendered"
-      :rows="rows"
-      :current-page="currentPage"
-      :total-pages="totalPages"
-      @getPage="getPage"
+      class="scroller"
+      :items="rows"
+      :item-size="55"
+      :buffer="2000"
+      page-mode
+      key-field="id"
+      v-slot="{ item }"
     >
-      <TableColumn name="id" title="ID" />
-      <TableColumn name="postId" title="Post ID" />
-      <TableColumn name="email" title="Email" />
-      <TableColumn name="name" title="Name" />
-    </DataTable>
+      <Item :item="item" />
+    </RecycleScroller>
   </div>
 </template>
 
 <script>
-import DataTable from "@/components/data-table/DataTableWithFunc";
-import TableColumn from "@/components/TableColumn";
+// import DataTable from "@/components/data-table/DataTable";
+// import TableColumn from "@/components/TableColumn";
+import Item from "@/components/virtual-scroll/item";
 
 export default {
   name: "App",
-  components: { DataTable, TableColumn },
+  // components: { DataTable, TableColumn },
+  components: { Item },
   data: () => ({
     rendered: false,
     rows: [],
@@ -31,14 +39,12 @@ export default {
   }),
   async created() {
     const res = await fetch(`https://jsonplaceholder.typicode.com/comments`);
+    this.rows = await res.json();
 
-    // this.rows = await res.json();
-
-    this.totalPages = Math.max(
-      ...(await res.json()).map((item) => item.postId)
-    );
-
-    this.blockingPromise = this.getPage(1);
+    // this.totalPages = Math.max(
+    //   ...(await res.json()).map((item) => item.postId)
+    // );
+    // this.blockingPromise = this.getPage(1);
   },
   methods: {
     async getPage(number) {
@@ -75,5 +81,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+</style>
+
+<style scoped>
+.scroller {
+  text-align: left;
+  margin: 24px;
 }
 </style>
