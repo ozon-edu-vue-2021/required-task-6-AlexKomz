@@ -50,12 +50,9 @@ export default {
     columnsWithSort() {
       return this.columns.reduce((acc, column) => {
         const { sort } = column;
-
-        if (sort.direction) {
-          acc.push({ name: column.name, direction: sort.direction });
-        }
-
-        return acc;
+        return sort.direction
+          ? [...acc, { name: column.name, direction: sort.direction }]
+          : acc;
       }, []);
     },
 
@@ -63,11 +60,9 @@ export default {
       return this.columns.reduce((acc, column) => {
         const { filter } = column;
 
-        if (filter.text) {
-          acc.push({ name: column.name, text: filter.text });
-        }
-
-        return acc;
+        return filter.text
+          ? [...acc, { name: column.name, text: filter.text }]
+          : acc;
       }, []);
     },
 
